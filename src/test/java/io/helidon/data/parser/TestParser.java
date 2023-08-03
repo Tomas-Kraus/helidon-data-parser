@@ -26,39 +26,39 @@ public class TestParser {
 
     // Method name contains return method "get" only
     @Test
-    public void testMethodGet() throws IOException {
-        System.out.println("\n*** Running testMethodGet ***");
+    public void testGet() throws IOException {
+        System.out.println("\n*** Running testGet ***");
         Token token = parse("get");
         assertThat(token.method(), is(Token.Method.GET));
     }
 
     // Method name contains return method "find" only
     @Test
-    public void testMethodFind() throws IOException {
-        System.out.println("\n*** Running testMethodFind ***");
+    public void testFind() throws IOException {
+        System.out.println("\n*** Running testFind ***");
         Token token = parse("find");
         assertThat(token.method(), is(Token.Method.FIND));
     }
 
     @Test
-    public void testMethodGetProperty() throws IOException {
-        System.out.println("\n*** Running testMethodGetProperty ***");
+    public void testGetProperty() throws IOException {
+        System.out.println("\n*** Running testGetProperty ***");
         Token token = parse("getProperty");
         assertThat(token.method(), is(Token.Method.GET));
         assertThat(token.projectionProperty(), is("Property"));
     }
 
     @Test
-    public void testMethodFindProperty() throws IOException {
-        System.out.println("\n*** Running testMethodFindProperty ***");
+    public void testFindProperty() throws IOException {
+        System.out.println("\n*** Running testFindProperty ***");
         Token token = parse("findProperty");
         assertThat(token.method(), is(Token.Method.FIND));
         assertThat(token.projectionProperty(), is("Property"));
     }
 
     @Test
-    public void testMethodGetMaxProperty() throws IOException {
-        System.out.println("\n*** Running testMethodGetMaxProperty ***");
+    public void testGetMaxProperty() throws IOException {
+        System.out.println("\n*** Running testGetMaxProperty ***");
         Token token = parse("getMaxProperty");
         assertThat(token.method(), is(Token.Method.GET));
         assertThat(token.projection(), is(Token.Projection.MAX));
@@ -66,8 +66,8 @@ public class TestParser {
     }
 
     @Test
-    public void testMethodFindMinProperty() throws IOException {
-        System.out.println("\n*** Running testMethodFindMinProperty ***");
+    public void testFindMinProperty() throws IOException {
+        System.out.println("\n*** Running testFindMinProperty ***");
         Token token = parse("findMinProperty");
         assertThat(token.method(), is(Token.Method.FIND));
         assertThat(token.projection(), is(Token.Projection.MIN));
@@ -75,8 +75,8 @@ public class TestParser {
     }
 
     @Test
-    public void testMethodGetTop3Property() throws IOException {
-        System.out.println("\n*** Running testMethodGetTop3Property ***");
+    public void testGetTop3Property() throws IOException {
+        System.out.println("\n*** Running testGetTop3Property ***");
         Token token = parse("getTop3Property");
         assertThat(token.method(), is(Token.Method.GET));
         assertThat(token.projection(), is(Token.Projection.TOP));
@@ -85,8 +85,8 @@ public class TestParser {
     }
 
     @Test
-    public void testMethodFindTop20Property() throws IOException {
-        System.out.println("\n*** Running testMethodFindTop20Property ***");
+    public void testFindTop20Property() throws IOException {
+        System.out.println("\n*** Running testFindTop20Property ***");
         Token token = parse("findTop20Property");
         assertThat(token.method(), is(Token.Method.FIND));
         assertThat(token.projection(), is(Token.Projection.TOP));
@@ -95,12 +95,25 @@ public class TestParser {
     }
 
     @Test
-    public void testMethodGetPropertyBy() throws IOException {
-        System.out.println("\n*** Running testMethodGetPropertyBy ***");
-        Token token = parse("getPropertyBy");
+    public void testGetPropertyByValue() throws IOException {
+        System.out.println("\n*** Running testGetPropertyByValue ***");
+        Token token = parse("getPropertyByValue");
         assertThat(token.method(), is(Token.Method.GET));
         assertThat(token.projectionProperty(), is("Property"));
+        assertThat(token.criteria(), is(Token.Criteria.EQUALS));
+        assertThat(token.criteriaProperty(), is("Value"));
     }
+
+    @Test
+    public void testGetPropertyByValueAfter() throws IOException {
+        System.out.println("\n*** Running testGetPropertyByValueAfter ***");
+        Token token = parse("getPropertyByValueAfter");
+        assertThat(token.method(), is(Token.Method.GET));
+        assertThat(token.projectionProperty(), is("Property"));
+        assertThat(token.criteria(), is(Token.Criteria.AFTER));
+        assertThat(token.criteriaProperty(), is("Value"));
+    }
+
 
     private static Token parse(String str) throws IOException {
         StringReader sr = new StringReader(str);

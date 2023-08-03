@@ -32,6 +32,8 @@ package io.helidon.data.parser;
 %state PROJECTION_IDENTIFIER
 %state PROJECTION_AFTER_PROPERTY
 %state CRITERIA
+%state CRITERIA_PROPERTY
+%state CRITERIA_NEXT
 
 // FIXME: Remove when fully implemented and tested
 %debug
@@ -41,6 +43,8 @@ package io.helidon.data.parser;
     Token.Projection projection = null;
     int topCount = 0;
     String projectionProperty = null;
+    Token.Criteria criteria = null;
+    String criteriaProperty = null;
 %}
 
 UP_ALPHA=[A-Z]
@@ -52,6 +56,7 @@ IDENT_CHAR = {ALPHA} | {DIGIT} | {EXT_CHAR}
 
 Number = [0-9]+
 Property = {UP_ALPHA} {IDENT_CHAR}+
+BySuffix = By {IDENT_CHAR}+
 
 %%
 
@@ -143,11 +148,13 @@ Property = {UP_ALPHA} {IDENT_CHAR}+
 // "OrderBy" to define ordering
 <PROJECTION_IDENTIFIER> {
 
-    {Property}"By" {
-        projectionProperty = yytext().substring(0, yytext().length() - 2);
+    // Lookahead for criteria part of the expression
+    {Property} / {BySuffix} {
+        projectionProperty = yytext();
         yybegin(CRITERIA);
     }
 
+    // Property followed by no "By" or "OrderBy" keywords
     {Property} {
         projectionProperty = yytext();
         yybegin(PROJECTION_AFTER_PROPERTY);
@@ -167,8 +174,38 @@ Property = {UP_ALPHA} {IDENT_CHAR}+
 // Criteria - TBD
 <CRITERIA> {
 
+    // Just consume "By"
+    "By" {
+        yybegin(CRITERIA_PROPERTY);
+    }
+
+}
+<CRITERIA_PROPERTY> {
+
+    {Property}"After" {
+        criteria = Token.Criteria.AFTER;
+        criteriaProperty = yytext().substring(0, yytext().length() - 5);
+        yybegin(CRITERIA_NEXT);
+    }
+
+    {Property}"Before" {
+        criteria = Token.Criteria.BEFORE;
+        criteriaProperty = yytext().substring(0, yytext().length() - 6);
+        yybegin(CRITERIA_NEXT);
+    }
+
+    {Property} {
+        criteria = Token.Criteria.EQUALS;
+        criteriaProperty = yytext();
+        return new Token(method, projection, topCount, projectionProperty, criteria, criteriaProperty);
+    }
+
+}
+
+<CRITERIA_NEXT> {
+
     <<EOF>> {
-        return new Token(method, projection, topCount, projectionProperty);
+        return new Token(method, projection, topCount, projectionProperty, criteria, criteriaProperty);
     }
 
 }

@@ -114,26 +114,110 @@ public class Token {
 
     }
 
+    /**
+     * Condition operators with supported keywords.
+     * Numbers of parameters are used to assign method parameters to statement {@code setParameter} calls.
+     * Keywords are used to initialize related part of dynamic finder query method name parser.
+     */
+    public enum Criteria {
+        AFTER(1, "After"),
+        BEFORE(1, "Before"),
+        CONTAINS(1, "Contains"),
+        STARTS(1, "StartsWith", "StartingWith"),
+        ENDS(1, "EndsWith", "EndingWith"),
+        EQUALS(1, "Equal", "Equals"),
+        GREATER_THAN(1, "GreaterThan"),
+        GREATER_THAN_EQUALS(1, "GreaterThanEqual", "GreaterThanEquals"),
+        LESS_THAN(1, "LessThan"),
+        LESS_THAN_EQUALS(1, "LessThanEqual", "LessThanEquals"),
+        LIKE(1, "Like"),
+        ILIKE(1, "Ilike"),
+        IN(1, "In", "InList"),
+        BETWEEN(2, "Between", "InRange"),
+        NULL(0, "Null", "IsNull"),
+        EMPTY(0, "Empty", "IsEmpty"),
+        TRUE(0, "True", "IsTrue"),
+        FALSE(0, "False", "IsFalse");
+
+        /** Condition operators enumeration length. */
+        static final int LENGTH = values().length;
+
+        // Number of operator parameters
+        private final int paramCount;
+        // Supported operator keywords
+        private final String[] keywords;
+
+        // Creates an instance of condition operators
+        Criteria(int paramCount, String... keywords) {
+            if (keywords == null || keywords.length == 0) {
+                throw new IllegalArgumentException("At least one keyword is required!");
+            }
+            this.paramCount = paramCount;
+            this.keywords = keywords;
+        }
+
+        // TODO: Remove public access to keywords and paramCount methods
+        /**
+         * Supported keywords.
+         *
+         * @return keywords supported by the condition method.
+         */
+        public String[] keywords() {
+            return keywords;
+        }
+
+        /**
+         * Number of operator parameters.
+         *
+         * @return number of operator parameters required from dynamic finder query method
+         */
+        public int paramCount() {
+            return paramCount;
+        }
+
+    }
 
     private final Method method;
     private final Projection projection;
     private final String projectionProperty;
     private int topCount = 0;
+    private final Criteria criteria;
+    private final String criteriaProperty;
 
     Token(Method method) {
         this.method = method;
         this.projection = null;
         this.topCount = 0;
         this.projectionProperty = null;
+        this.criteria = null;
+        this.criteriaProperty = null;
     }
 
-    Token(Method method, Projection projection, int topCount, String projectionProperty) {
+    Token(Method method,
+          Projection projection,
+          int topCount,
+          String projectionProperty) {
         this.method = method;
         this.projection = projection;
         this.topCount = topCount;
         this.projectionProperty = projectionProperty;
+        this.criteria = null;
+        this.criteriaProperty = null;
     }
 
+    Token(Method method,
+          Projection projection,
+          int topCount,
+          String projectionProperty,
+          Criteria criteria,
+          String criteriaProperty) {
+        this.method = method;
+        this.projection = projection;
+        this.topCount = topCount;
+        this.projectionProperty = projectionProperty;
+        this.criteria = criteria;
+        this.criteriaProperty = criteriaProperty;
+    }
 
     Method method() {
         return method;
@@ -151,5 +235,12 @@ public class Token {
         return projectionProperty;
     }
 
+    Criteria criteria() {
+        return criteria;
+    }
+
+    String criteriaProperty() {
+        return criteriaProperty;
+    }
 
 }
